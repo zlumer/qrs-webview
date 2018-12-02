@@ -1,5 +1,4 @@
 window.RTCHelper = require('./webrtc').RTCHelper;
-// window.JSONRPC = require('./jsonrpc');
 
 window.addEventListener("message", receiveMessage);
 document.addEventListener("message", receiveMessage);
@@ -82,7 +81,7 @@ function err(id, e)
 }
 
 var RPC_HANDLER = {
-	init(jrpc)
+	init(json)
 	{
 		if (!rtc)
 		{
@@ -91,26 +90,26 @@ var RPC_HANDLER = {
 			rtc.on('connected', () => msg('webrtc.connected'));
 			rtc.onMessage = ev => msg("webrtc.incoming", JSON.parse(ev.data.toString()));
 		}
-		answer(jrpc.id, true)
+		answer(json.id, true)
 	},
-	createOffer(jrpc)
+	createOffer(json)
 	{
-		rtc.createOffer().then(offer => answer(jrpc.id, offer))
+		rtc.createOffer().then(offer => answer(json.id, offer))
 	},
-	pushOffer(jrpc)
+	pushOffer(json)
 	{
-		rtc.pushOffer(jrpc.params.offer || jrpc.params[0]).then(a => answer(jrpc.id, a)).catch(e => err(jrpc.id, e))
+		rtc.pushOffer(json.params.offer || json.params[0]).then(a => answer(json.id, a)).catch(e => err(json.id, e))
 	},
-	pushAnswer(jrpc)
+	pushAnswer(json)
 	{
-		rtc.pushAnswer(jrpc.params.answer || jrpc.params[0]).then(() => answer(jrpc.id, null)).catch(e => err(jrpc.id, e))
+		rtc.pushAnswer(json.params.answer || json.params[0]).then(() => answer(json.id, null)).catch(e => err(json.id, e))
 	},
-	pushIceCandidate(jrpc)
+	pushIceCandidate(json)
 	{
-		rtc.pushIceCandidate(jrpc.params.candidate || jrpc.params[0]).then(() => answer(jrpc.id, null)).catch(e => err(jrpc.id, e))
+		rtc.pushIceCandidate(json.params.candidate || json.params[0]).then(() => answer(json.id, null)).catch(e => err(json.id, e))
 	},
-	send(jrpc)
+	send(json)
 	{
-		rtc.dataChannel.send(jrpc.params.msg || jrpc.params[0]).then(() => answer(jrpc.id, null)).catch(e => err(jrpc.id, e))
+		rtc.dataChannel.send(json.params.msg || json.params[0]).then(() => answer(json.id, null)).catch(e => err(json.id, e))
 	},
 }
